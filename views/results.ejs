@@ -1,0 +1,17 @@
+<% include partials/header %>
+
+<form action="/search">
+    <input type="text" id="keyword" value="<%= keyword %>" placeholder="Type keyword" name="keyword">
+    <button>Search</button>
+    <a id="fav-link" href="/displayKeywords"> See Favorites </a>
+</form>
+
+<% imageURLs.forEach(function(url, index) { %>
+    <%- (index % 3 == 0) ? "<br>" : "" %>
+    <div class="image-container">
+        <img class="image" src="<%=url%>" width="200" height="200">
+        <img class="favorite-icon" src="img/favorite.png" width="20">
+    </div>
+<% }); %>
+
+<% include partials/footer %>
