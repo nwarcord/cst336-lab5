@@ -4,9 +4,8 @@ const app = express();
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 
-const request = require("request");
-const mysql = require("mysql");
-const tools = require("./tools.js");
+const tools = require("./tools");
+const pool = require("./database"); // Connection pool
 
 // Routes
 
@@ -22,15 +21,9 @@ app.get("/search", async function(req, res) {
     res.render("results", {imageURLs, keyword});
 });
 
+// Route to update favorite images
 app.get("/api/updateFavorites", function(req, res) {
 
-    // var conn = mysql.createConnection({
-    //     host: "us-cdbr-iron-east-02.cleardb.net",
-    //     user: "b2848780ec5752",
-    //     password: "36759909",
-    //     database: "heroku_8e95a53d7f7ad57"
-    // });
-    var conn = tools.createConnection();
     var sql;
     var sqlParams;
 
@@ -43,43 +36,34 @@ app.get("/api/updateFavorites", function(req, res) {
         sqlParams = [req.query.imageURL];
     }
 
-    conn.connect(function(err) {
+    pool.query(sql, sqlParams, function(err, result) {
         if (err) throw err;
-        conn.query(sql, sqlParams, function(err, result) {
-            if (err) throw err;
-        });
     });
 
 });
 
+// Display keywords from database and render favs page
 app.get("/displayKeywords", async function(req, res) {
 
     let imageURLs = await tools.getRandomImages('', 1);
-    var conn = tools.createConnection();
     var sql = "SELECT DISTINCT keyword FROM `favorites` ORDER BY keyword";
 
-    conn.connect(function(err) {
-        if (err) throw (err);
-        conn.query(sql, function(err, result) {
-            if (err) throw err;
-            res.render("favorites", {rows: result, imageURLs});
-        });
+    pool.query(sql, function(err, result) {
+        if (err) throw err;
+        res.render("favorites", {rows: result, imageURLs});
     });
 
 });
 
+// Favorite picture by keyword
 app.get("/api/displayFavorites", function(req, res) {
 
-    var conn = tools.createConnection();
     var sql = "SELECT imageURL FROM favorites WHERE keyword = ?";
     var sqlParams = [req.query.keyword];
 
-    conn.connect(function(err) {
-        if (err) throw (err);
-        conn.query(sql, sqlParams, function(err, results) {
-            if (err) throw err;
-            res.send(results);
-        });
+    pool.query(sql, sqlParams, function(err, results) {
+        if (err) throw err;
+        res.send(results)
     });
 
 });

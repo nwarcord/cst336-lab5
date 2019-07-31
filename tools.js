@@ -1,5 +1,4 @@
 const request = require("request");
-const mysql = require("mysql");
 
 module.exports = {
     /**
@@ -24,16 +23,6 @@ module.exports = {
             });
         });
 
-    },
-
-    createConnection: function() {
-        var conn = mysql.createConnection({
-            host: "us-cdbr-iron-east-02.cleardb.net",
-            user: "b2848780ec5752",
-            password: "36759909",
-            database: "heroku_8e95a53d7f7ad57"
-        });
-
-        return conn;
     }
+
 }
